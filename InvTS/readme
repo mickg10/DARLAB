@@ -1,0 +1,166 @@
+InvTS (c) Michael Gorbovitski 2005-2006
+The Invariant-Driven Transformation System
+Standard Usage:
+  python InvTS.py [OPTIONS] Language_Module rules_db rules input driverfile output
+  Transforms input into output using all rules in rules_db.invtl, matched by rules.invtl
+  This has the sideeffect of creating or updating the database in
+  rulefile.invtl.invts_db, the cache for InvTS.
+
+  OPTIONS:
+      --clean    Forces a flush of the cache DB, as well as wiping the output.
+      --verbose  Output more information during the transformation.
+      --force    Forces output to appear even if it does not pass testing.
+  For an example, see rule.invtl in sample/rbac/
+  To run the example, run:
+  python InvTS.py lm_py sample/rbac/rule\_db.invt  sample/rbac/rule.invtl
+    sample/rbac/RBAC.py sample/rbac/driver.py sample/rbac/RBACOPT.py
+
+Custom Usage:
+  python InvTS.py --check-only Language_Module input driverfile
+  This analyzes input, and displays an interactive graph with the results.
+
+Examples are RBAC and a refactoring example, in the samples directory.
+
+******************
+Requirements - Not Included
+******************
+PyGame
+GraphViz
+NumPy
+PyParsing
+
+******************
+Overall Notes
+******************
+Initial subject program has to be analyzable. This usually means that it 
+cannot be blatantly incorrect. For example, this, while compilable, will not 
+run, as during analysis, it will find that b is used before it has been 
+assigned to.
+
+def f():
+    a=[1,2,"t"]
+    if a[1]<0:
+        print b
+    else:
+        print a
+
+Same goes for the final result. If multiple rules are applied, intermediate 
+results may be non-analyzable, but this is not recommended, for many reasons.
+
+******************
+InvTL Rule Syntax
+******************
+Rules use the same syntax as in the paper, with the notable caveats:
+
+inv $RES = py{python expression}
+if (True)  #condition must be here. Can be more specific, of course
+(
+
+    #cannot lift do out, simulate by using the following pattern
+    #this is equivalent to a do instead at query scope
+    # same can be done for do before/do after
+    #global de code would go here, as well
+    at py{$query} 
+    do instead py{
+        self.$MapU2P.get(user)  
+    }
+
+    #standard At-If-De-Do clause
+    #all features as discussed are supporter
+    at py{self.ROLES.add($r)}
+    do py{
+        for (op, obj) in self.$PRMapR2P.get($r):
+            for u in self.URMapR2U.get($r):
+                if op in self.OPS:
+                    if obj in self.OBJS:                       
+                       if (op, obj) not in self.$MapU2P.get(u):
+                            self.$MapU2P.add(u,(op, obj))
+    }
+
+    #De clause works, but only when adding to an existing class, not creating 
+    # a new one
+    #Old workaround was this:
+    #This just creates initialization code at the parents __init__
+    at py{self.ROLES = set()}
+    do py{
+        self.$MapU2P = MultiMap()
+        self.URMapR2U = MultiMap()
+        self.$PRMapR2P = MultiMap()
+    }
+
+)
+
+Please be careful with indentation, and do not mix tabs and spaces, as 
+weirdness will result.
+
+
+*************
+Refactoring
+*************
+
+Refactoring rules are different, as they do not require analysis that is that 
+sophisticated. They (refactoring rules) are specified in the following way:
+
+inv $refactor = py{$t}
+if (True)
+(
+		at py{self.$b[$b2]=$e2}
+		if (Class($update)=="TEST") 
+		de in Class($update) (
+				py{self.$cq=$e2}
+			)	
+		do py{
+			self.$cq = $e2
+		}
+)
+
+
+The invariant HAS to be called $refactor, as this signifies that this is a 
+refactoring rule.
+
+
+*************
+Driver
+*************
+The driver is necessary for type deduction, which is necessary for alias 
+analysis. Assuming SUBJECT.py is the file we wish to transform, and the main 
+class is C. Also, assuming that C has member functions m1 through m10. The 
+driver should look something like this:
+
+from SUBJECT import C
+C.m1(1,"hello")
+C.m2(......)
+C.m3(......)
+C.m4(......)
+C.m5(......)
+C.m6(......)
+C.m7(......)
+C.m8(......)
+C.m9(......)
+C.m10(......)
+
+Total coverage of all functions is not necessary, as long as the call graph covers 
+all of them. So, if m1 calls m2-m5, they do not have to be explicitly called in 
+the driver. 
+Note: the driver does not have to be actually executable without exceptions. It 
+just has to provide the correct types which can be sent to m1-m10.
+
+See the RBAC driver for examples.
+
+
+**************************
+Misc (Laundry List)
+**************************
+Issues with 
+    compserv1 -- caching and zlib don't work. Need to talk to Brian.
+    de clause
+    logging and error reporting (is better now, needs more command-line support)
+    some analysis issues (the Set class cannot be imported, as it is broken)
+    built-in set primitive works fine.
+        Not all operations on set are working.  This can be fixed in:
+            pypy-dist\pypy\annotation\unaryop.py 
+            (see the extend(SomeSet) section)
+    alias analysis is still somewhat buggy.
+    handles about 60% of pythons library, need to cover the rest.
+        Mainly, issues with builtins like dir
+

@@ -1,0 +1,46 @@
+py lib contact and communication 
+===================================
+
+
+- **#pylib on irc.freenode.net**: you are welcome
+  to lurk or ask questions in this IRC channel, it also tracks py lib commits. 
+
+- `py-dev developers list`_ development mailing list.  Good for reporting bugs, feature questions, discussing issues.  Usually sees between 1 and 10 posts per week. 
+
+- `py-svn general commit mailing list`_ to follow all development commits. 
+
+- `development bug/feature tracker`_ this roundup instance serves to file bugs and track issues.  
+
+- `merlinux.eu`_ offers tutorials and commercial support for
+  py.test and the py lib in general. 
+
+.. _`merlinux.eu`: http://merlinux.eu
+
+.. _`zope3`: http://zope3.zwiki.org/
+.. _twisted: http://www.twistedmatrix.org 
+.. _future: future.html 
+
+.. _`get an account`:  
+
+
+get an account on codespeak  
+--------------------------- 
+
+codespeak_ is where the subversion repository is hosted.  If you know 
+someone who is active on codespeak already or you are otherwise known in 
+the community (see also: FOAF_) you will get access.  But even if 
+you are new to the python developer community please come to the IRC 
+or the mailing list and ask questions, get involved. 
+
+.. _FOAF: http://en.wikipedia.org/wiki/FOAF
+.. _`coding style`: coding-style.html 
+.. _us: http://codespeak.net/mailman/listinfo/py-dev
+.. _codespeak: http://codespeak.net/
+.. _`py-dev`: 
+.. _`development mailing list`: 
+.. _`py-dev developers list`: http://codespeak.net/mailman/listinfo/py-dev 
+.. _`subversion commit mailing list`: 
+.. _`py-svn`: 
+.. _`py-svn general commit mailing list`: http://codespeak.net/mailman/listinfo/py-svn 
+.. _`development bug/feature tracker`: https://codespeak.net/issue/py-dev/ 
+

@@ -1,0 +1,17 @@
+match py{self.UR -= set((user,r) for r in self.ROLES)}
+match py{self.UR -= set((u,role) for u in self.USERS)}
+match py{self.SR -= set((session,r) for r in self.ROLES)}
+match py{self.PR -= set(((op,obj),role) for op in self.OPS for obj in self.OBJS)}
+match py{set($Q for $Q in self.$ROLES if ($session,$Q) in self.$SR and (($operation,$object),$Q) in self.$PR)} if (isVar($session))
+match py{set($Q for $Q in self.ROLES if (user,$Q) in self.UR)}
+match py{set(r for r in self.ROLES if (session,r) in self.SR)}
+match py{set(u for u in self.USERS if (u,role) in self.UR)}
+match py{set((op,obj) for op in self.OPS for obj in self.OBJS if ((op,obj),role) in self.PR)}
+match py{set(op for op in self.OPS if ((op,obj),role) in self.PR)}
+match py{set(s for s in self.SESSIONS if (s,user) in self.SU)}
+match py{set(s for s in self.SESSIONS if (s,user) in self.SU and (s,role) in self.SR)}
+match py{set((s,u) for s in self.SESSIONS for u in self.USERS if (s,u) in self.SU and (s,role) in self.SR)}
+match py{set((op, obj) for r in self.ROLES for op in self.OPS for obj in self.OBJS if (user, r) in self.UR and ((op, obj), r) in self.PR)}
+match py{set((op, obj) for r in self.ROLES for op in self.OPS for obj in self.OBJS if (session, r) in self.SR and ((op, obj), r) in self.PR)}
+match py{set(op for r in self.ROLES for op in self.OPS if (user, r) in self.UR and ((op, obj), r) in self.PR)}
+
